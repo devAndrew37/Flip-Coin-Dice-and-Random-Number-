@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+ <title>Flip Coin, Dice and Random Number!</title>
+ <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ <h1>Flip Coin, Dice Roll and Random Number!</h1>
+ <div class="container">
+<div class="container-item">
+ <button onclick="flipCoin()">Flip Coin</button>
+ <input type="number" id="coinFlips" placeholder="Number of Coin Flips" min="1" oninput="validity.valid||(value='');">
+ <p id="result1"></p>
+</div>
+<div class="container-item">
+ <button onclick="rollDice()">Roll Dice</button>
+ <input type="number" id="rollDice" placeholder="Number of Dices Rolled" min="1" oninput="validity.valid||(value='');">
+ <p id="result2"></p>
+</div>
+<div class="container-item">
+ <button onclick="generateRandomNumber()">Generate Random Number</button>
+ <input type="number" id="min" placeholder="Min Number" min="1" step="1" oninput="validity.valid||(value='');">
+ <input type="number" id="max" placeholder="Max Number" min="1" step="1" oninput="validity.valid||(value='');">
+ <p id="result3"></p>
+</div>
+</div>
+ <script>
+  function flipCoin() {
+    const coin = new Audio('coin.mp3');
+    coin.play();
+    const times = document.getElementById('coinFlips').value;
+    if (times > 1){
+      document.getElementById('result1').innerText = 'Flipping Coins...';
+    } else {
+      document.getElementById('result1').innerText = 'Flipping Coin...';
+    }
+    setTimeout(() => {
+      const result = fetch(`http://localhost:3000/coinFlip?times=${times}`)
+      .then(response => response.json())
+      .then(data => {
+        if (times > 1){
+          document.getElementById('result1').innerText = `Coin Flips: ${data.result.join(', ')}`;
+        } else {
+          document.getElementById('result1').innerText = `Coin Flip: ${data.result}`;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('result1').innerText = 'Error flipping coin';
+      });
+    }, 1000);
+  }
+
+  function rollDice() {
+    const diceroll = new Audio('diceroll.mp3');
+    diceroll.play();
+    const times = document.getElementById('rollDice').value;
+    if (times > 1){
+      document.getElementById('result2').innerText = 'Rolling Dices...';
+    } else {
+      document.getElementById('result2').innerText = 'Rolling Dice...';
+    }
+    setTimeout(() => {
+    const result = fetch(`http://localhost:3000/diceRoll?times=${times}`)
+      .then(response => response.json())
+      .then(data => {
+        if (times > 1){
+          document.getElementById('result2').innerText = `Dice Rolls: ${data.result.join(', ')}`;
+        } else {
+          document.getElementById('result2').innerText = `Dice Roll: ${data.result}`;
+        }      
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('result2').innerText = 'Error rolling dice';
+      });
+    }, 1000);
+  }
+
+  function generateRandomNumber() {
+    const beep = new Audio('beep.mp3');
+    let min = parseInt(document.getElementById('min').value) || 1;
+    let max = parseInt(document.getElementById('max').value) || 100;
+    if (min >= max) {
+      document.getElementById('result3').innerText = 'Min must be less than Max';
+      return;
+    } else {
+      beep.play();
+      document.getElementById('result3').innerText = 'Generating Random Number...';
+    setTimeout(() => {
+    const result = fetch(`http://localhost:3000/randomNumber?min=${min}&max=${max}`)
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('result3').innerText = `Random Number (from ${min}-${max}) is: ${data.result}`;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('result3').innerText = 'Error getting random number';
+      });
+    }, 2500);
+  }}
+ </script>
+</body>
+</html>
